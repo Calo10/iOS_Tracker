@@ -12,6 +12,17 @@ class StudentTableViewController: UITableViewController {
     
     var students = [StudentModel]()
     
+    @IBAction func unwindToStudentList(sender: UIStoryboardSegue) {
+        
+        if let sourceViewController = sender.source as? ViewController, let student = sourceViewController.student {
+            
+            let newIndexPath = IndexPath(row: students.count, section: 0)
+            
+            students.append(student)
+            tableView.insertRows(at: [newIndexPath], with: .automatic)
+        }
+        
+    }
     
     private func loadSampleStudents(){
         
