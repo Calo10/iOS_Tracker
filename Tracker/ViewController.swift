@@ -36,7 +36,15 @@ class ViewController: UIViewController, UITextFieldDelegate, UIImagePickerContro
     }
     
     @IBAction func cancel(_ sender: Any) {
-        dismiss(animated: true, completion: nil)
+        
+        let isPresentingInAddMealMode = presentingViewController is UINavigationController
+        
+        if isPresentingInAddMealMode {
+            dismiss(animated: true, completion: nil)
+        }
+        else if let owningNavigationController = navigationController{
+            owningNavigationController.popViewController(animated: true)
+        }
     }
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
@@ -61,6 +69,13 @@ class ViewController: UIViewController, UITextFieldDelegate, UIImagePickerContro
         super.viewDidLoad()
         
         txtName.delegate = self
+        
+        if let student = student {
+            navigationItem.title = student.name
+            txtName.text = student.name
+            imgPhotoImageView.image = student.photo
+        }
+        
         updateSaveButtonState()
     }
 

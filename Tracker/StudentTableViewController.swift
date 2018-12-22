@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import os.log
 
 class StudentTableViewController: UITableViewController {
     
@@ -16,10 +17,18 @@ class StudentTableViewController: UITableViewController {
         
         if let sourceViewController = sender.source as? ViewController, let student = sourceViewController.student {
             
-            let newIndexPath = IndexPath(row: students.count, section: 0)
-            
-            students.append(student)
-            tableView.insertRows(at: [newIndexPath], with: .automatic)
+            if let selectedIndexPath = tableView.indexPathForSelectedRow {
+                // Update an existing meal.
+                students[selectedIndexPath.row] = student
+                tableView.reloadRows(at: [selectedIndexPath], with: .none)
+            }
+            else {
+                let newIndexPath = IndexPath(row: students.count, section: 0)
+                
+                students.append(student)
+                tableView.insertRows(at: [newIndexPath], with: .automatic)
+                
+            }
         }
         
     }
@@ -52,13 +61,9 @@ class StudentTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationItem.leftBarButtonItem = editButtonItem
+        
         loadSampleStudents()
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
 
     // MARK: - Table view data source
@@ -91,27 +96,62 @@ class StudentTableViewController: UITableViewController {
 
         return cell
     }
- 
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        super.prepare(for: segue, sender: sender)
+        
+        
+        switch(segue.identifier ?? "") {
+            
+            case "AddItem":
+                os_log("Adding a new meal.", log: OSLog.default, type: .debug)
+            
+            case "ShowDetail":
+            
+                guard let studentDetailViewController = segue.destination as? ViewController else {
+                    fatalError("Unexpected destination: \(segue.destination)")
+                }
+            
+                guard let selectedStudentCell = sender as? StudentTableViewCell else {
+                    fatalError("Unexpected sender: \(sender)")
+                }
+            
+                guard let indexPath = tableView.indexPath(for: selectedStudentCell) else {
+                    fatalError("The selected cell is not being displayed by the table")
+                }
+            
+                let selectedStudent = students[indexPath.row]
+                studentDetailViewController.student = selectedStudent
+            
+            
+            default:
+                fatalError("Unexpected Segue Identifier")
+            }
+        
+    }
+    
 
-    /*
+    
     // Override to support conditional editing of the table view.
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         // Return false if you do not want the specified item to be editable.
         return true
     }
-    */
+    
 
-    /*
+    
     // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             // Delete the row from the data source
+            students.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }    
     }
-    */
+    
 
     /*
     // Override to support rearranging the table view.
