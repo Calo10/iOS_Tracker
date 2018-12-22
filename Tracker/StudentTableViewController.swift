@@ -8,6 +8,7 @@
 
 import UIKit
 import os.log
+import RealmSwift
 
 class StudentTableViewController: UITableViewController {
     
@@ -18,23 +19,37 @@ class StudentTableViewController: UITableViewController {
         if let sourceViewController = sender.source as? ViewController, let student = sourceViewController.student {
             
             if let selectedIndexPath = tableView.indexPathForSelectedRow {
-                // Update an existing meal.
+                // Update
                 students[selectedIndexPath.row] = student
                 tableView.reloadRows(at: [selectedIndexPath], with: .none)
             }
             else {
+                //save
                 let newIndexPath = IndexPath(row: students.count, section: 0)
                 
                 students.append(student)
                 tableView.insertRows(at: [newIndexPath], with: .automatic)
                 
+                let studentDB = StudentDB()
+                
+                studentDB.name = student.name
+                
+                let realm = try! Realm()
+                
+                try! realm.write {
+                    realm.add(studentDB)
+                }
+                
             }
+                
         }
-        
     }
+        
+    
     
     private func loadSampleStudents(){
         
+        /*
         let photo1 = UIImage(named: "student1")
         let photo2 = UIImage(named: "student2")
         let photo3 = UIImage(named: "student3")
@@ -53,8 +68,18 @@ class StudentTableViewController: UITableViewController {
             else {
                 fatalError("Unable to instantiate")
         }
+ 
         
         students += [student1,student2,student3]
+         */
+        
+        let realm = try! Realm()
+        
+        var studentsDB = realm.objects(StudentDB.self)
+        
+        for item in studentsDB {
+            students.append(StudentModel(name: item.name, photo: nil)!)
+        }
         
     }
 
