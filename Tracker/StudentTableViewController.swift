@@ -18,10 +18,19 @@ class StudentTableViewController: UITableViewController {
         
         if let sourceViewController = sender.source as? ViewController, let student = sourceViewController.student {
             
+            let realm = try! Realm()
+            
             if let selectedIndexPath = tableView.indexPathForSelectedRow {
                 // Update
                 students[selectedIndexPath.row] = student
                 tableView.reloadRows(at: [selectedIndexPath], with: .none)
+                
+                var current =  realm.objects(StudentDB.self).filter("name = %@", student.name)
+                
+                try! realm.write {
+                    realm.add(current, update: true)
+                }
+                
             }
             else {
                 //save
@@ -33,8 +42,9 @@ class StudentTableViewController: UITableViewController {
                 let studentDB = StudentDB()
                 
                 studentDB.name = student.name
+                studentDB.id = student.name
                 
-                let realm = try! Realm()
+                
                 
                 try! realm.write {
                     realm.add(studentDB)
@@ -171,6 +181,13 @@ class StudentTableViewController: UITableViewController {
         if editingStyle == .delete {
             // Delete the row from the data source
             students.remove(at: indexPath.row)
+            
+            let realm = try! Realm()
+            
+            try! realm.write {
+                
+            }
+            
             tableView.deleteRows(at: [indexPath], with: .fade)
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view

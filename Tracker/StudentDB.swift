@@ -9,6 +9,12 @@
 import RealmSwift
 
 class StudentDB: Object {
+    
+    @objc dynamic var id :String = ""
     @objc dynamic var name :String = ""
     @objc dynamic var photoPath :String = ""
+    
+    override static func primaryKey() -> String? {
+        return "id"
+    }
 }
